@@ -17,14 +17,14 @@ load_dotenv()
 SECRET_KEY = os.getenv('SECRET_KEY')
 ACCESS_TOKEN_EXPIRES_MINUTES = 60
 
-manager = LoginManager(secret=".",token_url="/login",use_cookie=True)
+manager = LoginManager(secret=SECRET_KEY,token_url="/login", use_cookie=True)
 manager.cookie_name = "auth"
 
 @manager.user_loader()
 def get_user_from_db(username: str):
     if username in users.keys():
         return UserDB(**users[username])
-    
+
 def authenticate_user(username: str, password: str):
     user = get_user_from_db(username=username)
     if not user:
@@ -41,28 +41,24 @@ def get_hashed_password(plain_password):
 def verify_password(plain_password, hashed_password):
     return pwd_ctx.verify(plain_password,hashed_password)
 
-
-
 class Notification(BaseModel):
     author: str
     description: str
 
-
 class User(BaseModel):
     name: str
-    Username: str
+    username: str
     email: str
-    birthday: Optional[str]
+    birthday: Optional[str] = ""
     friends: Optional[List[str]] = []
-    Notifications: Optional[List[Notification]] = []
+    notifications: Optional[List[Notification]] = []
 
 class UserDB(User):
     hashed_password: str
-    
+
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
-app.mount("/static",StaticFiles(directory="static"), name="static")
-
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 @app.get("/", response_class=HTMLResponse)
 def root(request: Request):
@@ -79,8 +75,8 @@ def login(request: Request, form_data: OAuth2PasswordRequestForm = Depends()):
         return templates.TemplateResponse("login.html", {"request": request, "title": "FriendConnect - Login", "invalid": True}, status_code=status.HTTP_401_UNAUTHORIZED)
     access_token_expires = timedelta(minutes=ACCESS_TOKEN_EXPIRES_MINUTES)
     access_token = manager.create_access_token(
-      data={"sub": user.Username},
-      expires=access_token_expires
+        data={"sub": user.username},
+        expires=access_token_expires
     )
     resp = RedirectResponse("/home", status_code=status.HTTP_302_FOUND)
     manager.set_cookie(resp,access_token)
@@ -91,6 +87,9 @@ class NotAuthenticatedException(Exception):
 
 def not_authenticated_exception_handler(request, exception):
     return RedirectResponse("/login")
+
+manager.not_authenticated_exception = NotAuthenticatedException
+app.add_exception_handler(NotAuthenticatedException, not_authenticated_exception_handler)
 
 @app.get("/home")
 def home(request: Request, user: User = Depends(manager)):
@@ -105,7 +104,7 @@ def logout():
 
 @app.get("/register", response_class=HTMLResponse)
 def get_register(request: Request):
-    return templates.TemplateResponse("register.html",{"request": request, "title": "FriendConnect - Register", "invalid": False})
+    return templates.TemplateResponse("register.html",{"request": request, "title": "FriendConnect - Register"})
 
 @app.post("/register")
 def register(request: Request, username: str = Form(...), name: str = Form(...), password: str = Form(...), email: str = Form(...)):
