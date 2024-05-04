@@ -8,7 +8,17 @@
             <p>@{{user.username}}</p>
             {% if user.birthday %}
                 <p><strong>Birthday: </strong>{{user.birthday}}</p>
-                {% endif %}
+            {% endif %}
+            {% if user.notifications %}
+                {% for notification in user.notifications}
+                   <ul style="list-style: none; padding-left: 0;">
+                        <li><strong>{{notification.author}}</strong></li>
+                        <li>{{notification.description}}</li>
+                   </ul>
+                {% endfor %}
+            {% else %}
+                 <p>No new notifications.</p>
+            {% endif %}
         </div>
     </div>
     <div class="row">
