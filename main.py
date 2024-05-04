@@ -7,8 +7,20 @@ from typing import List, Optional
 from db import users
 
 class Notification(BaseModel):
-    author: str,
+    author: str
     description: str
+
+
+class User(BaseModel):
+    name: str
+    Username: str
+    email: str
+    birthday: str
+    friends: List[str]
+    Notifications: List[Notification]
+
+class UserDB(User):
+    hashed_password: str
     
 app = FastAPI()
 templates = Jinja2Templates(directory="templates")
