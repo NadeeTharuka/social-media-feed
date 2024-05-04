@@ -5,6 +5,18 @@ from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel
 from typing import List, Optional
 from db import users
+from passlib.context import CryptContext
+
+pwd_ctx = CryptContext(schemes=["bcrypt"],deprecated="auto")
+
+def get_hashed_password(plain_password):
+    return pwd_ctx.hash(plain_password)
+
+def verify_password(plain_password, hashed_password):
+    return pwd_ctx.verify(plain_password,hashed_password)
+
+
+print(verify_password("password", get_hashed_password("password")))
 
 class Notification(BaseModel):
     author: str
@@ -34,3 +46,4 @@ def root(request: Request):
 @app.get("/login", response_class=HTMLResponse)
 def get_login(request: Request):
     return templates.TemplateResponse("login.html", {"request": request, "title": "FriendConnect - Login", "invalid": True})
+
