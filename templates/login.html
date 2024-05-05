@@ -2,7 +2,7 @@
 {% include 'navbar.html' %}
 <style>
     .container {
-        margin: 1em;
+        margin-top: 1em;
         max-width: 500px;
         margin-left: auto;
         margin-right: auto;
@@ -16,13 +16,12 @@
         </div>
         <div class="mb-3">
             <label for="password" class="form-label">Password</label>
-            <input type="password" class="form-control" id="password" name="password" required>
+            <input type="password" class="form-control" id="password" name="password" required>            
         </div>
         <button type="submit" class="btn btn-primary">Submit</button>
     </form>
     {% if invalid %}
-        <p style="margin-top: 0.5em; color: #eb4823">Invalid username or password. please try again.</p>
+        <p style="margin-top: 0.5em; color: #eb4823">Invalid username or password. Please try again.</p>
     {% endif %}
-    </div>
-
+</div>
 {% include 'footer.html' %}
